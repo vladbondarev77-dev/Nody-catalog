@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Довідник фурнітури NODY</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root{
+    --bg:#F5F1E8;
+    --paper:#FBF8F2;
+    --surface:#FFFFFF;
+    --ink:#211C15;
+    --muted:#7C7469;
+    --faint:#A9A090;
+    --accent:#AE6B2E;
+    --accent-ink:#5C3714;
+    --accent-soft:#EFE0C8;
+    --border:#E6DFD0;
+    --line:#EDE7DA;
+    --good-bg:#E7EFE1;
+    --good-ink:#3F6B33;
+    --warn:#B23A2E;
+    --warn-ink:#8A2C22;
+    --warn-bg:#F5E4E0;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#141210; --paper:#1B1815; --surface:#221E19; --ink:#F1ECE2;
+      --muted:#AA9F8E; --faint:#7A7061; --accent:#DB9A50; --accent-ink:#F5DDB3;
+      --accent-soft:#3B2E1C; --border:#3A342A; --line:#2C2620;
+      --good-bg:#26301F; --good-ink:#9BC784;
+      --warn:#E68577; --warn-ink:#F3B3A8; --warn-bg:#3B2019;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#141210; --paper:#1B1815; --surface:#221E19; --ink:#F1ECE2;
+    --muted:#AA9F8E; --faint:#7A7061; --accent:#DB9A50; --accent-ink:#F5DDB3;
+    --accent-soft:#3B2E1C; --border:#3A342A; --line:#2C2620;
+    --good-bg:#26301F; --good-ink:#9BC784;
+    --warn:#E68577; --warn-ink:#F3B3A8; --warn-bg:#3B2019;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"IBM Plex Sans","Segoe UI",Arial,sans-serif;
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior-y:none;
+  }
+  .mono{font-family:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;}
+  img{max-width:100%;display:block;}
+
+  #app{
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    background:var(--surface);
+  }
+
+  .bar{
+    padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 12px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border-bottom:1px solid var(--line);
+    background:var(--surface);
+    flex-shrink:0;
+    position:sticky;
+    top:0;
+    z-index:20;
+  }
+  .back-btn{
+    width:32px;height:32px;
+    border-radius:50%;
+    border:1px solid var(--border);
+    background:var(--paper);
+    color:var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    font-size:16px;
+    visibility:hidden;
+  }
+  .back-btn.show{visibility:visible;}
+  .title{
+    font-weight:600;
+    font-size:16px;
+    flex:1;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .title small{
+    display:block;
+    font-weight:400;
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:1px;
+  }
+  .search{
+    padding:10px 16px;
+    flex-shrink:0;
+    border-bottom:1px solid var(--line);
+    background:var(--surface);
+    position:sticky;
+    top:0;
+    z-index:19;
+  }
+  .search input{
+    width:100%;
+    border:1px solid var(--border);
+    background:var(--paper);
+    border-radius:11px;
+    padding:11px 14px;
+    font-size:15px;
+    color:var(--ink);
+    font-family:inherit;
+    outline:none;
+  }
+  .search input::placeholder{color:var(--faint);}
+  .search input:focus{border-color:var(--accent);}
+
+  .body{
+    flex:1;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:24px;
+  }
+
+  .block-row, .item-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px 16px;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+  }
+  .block-row:active, .item-row:active{background:var(--paper);}
+  .block-tile{
+    width:42px;height:42px;
+    border-radius:11px;
+    background:var(--accent-soft);
+    color:var(--accent-ink);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:600;
+    font-size:15px;
+    flex-shrink:0;
+  }
+  .block-name{flex:1;font-size:14.5px;font-weight:500;line-height:1.3;}
+  .block-sub{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:2px;}
+  .block-count{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .chev{color:var(--faint);font-size:16px;flex-shrink:0;}
+
+  .group-label{
+    padding:12px 16px 6px;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    font-weight:600;
+    background:var(--paper);
+  }
+
+  .thumb{
+    width:44px;height:44px;
+    border-radius:10px;
+    flex-shrink:0;
+    overflow:hidden;
+    background:var(--paper);
+    border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .thumb img{width:100%;height:100%;object-fit:contain;}
+  .thumb.no-photo{
+    border:1.5px dashed var(--warn);
+    background:var(--warn-bg);
+    color:var(--warn-ink);
+  }
+  .thumb svg{width:18px;height:18px;}
+
+  .item-main{flex:1;min-width:0;}
+  .item-name{
+    font-size:14px;font-weight:500;line-height:1.35;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .item-meta{margin-top:3px;font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .item-meta .art{color:var(--accent-ink);}
+  .dot{width:3px;height:3px;border-radius:50%;background:var(--faint);flex-shrink:0;}
+
+  .empty, .state-msg{
+    padding:70px 24px;
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.6;
+  }
+  .state-msg button{
+    margin-top:14px;
+    border:1px solid var(--accent);
+    color:var(--accent-ink);
+    background:var(--accent-soft);
+    padding:9px 18px;
+    border-radius:10px;
+    font-size:13.5px;
+    font-weight:600;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .skeleton-row{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;}
+  .skel{background:var(--line);border-radius:8px;animation:pulse 1.3s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+  /* detail sheet */
+  .sheet-veil{
+    position:fixed;inset:0;
+    background:rgba(20,15,8,.35);
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease;
+    z-index:30;
+  }
+  .sheet-veil.open{opacity:1;pointer-events:auto;}
+  .sheet{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    background:var(--surface);
+    border-radius:20px 20px 0 0;
+    border:1px solid var(--border);
+    border-bottom:none;
+    padding:14px 18px calc(env(safe-area-inset-bottom,0px) + 22px);
+    transform:translateY(100%);
+    transition:transform .26s cubic-bezier(.2,.8,.2,1);
+    z-index:31;
+    max-height:88dvh;
+    overflow-y:auto;
+  }
+  .sheet.open{transform:translateY(0);}
+  .sheet-handle{width:34px;height:4px;border-radius:3px;background:var(--border);margin:0 auto 14px;}
+  .sheet-photo{
+    width:100%;
+    max-height:220px;
+    border-radius:14px;
+    overflow:hidden;
+    margin-bottom:14px;
+    background:var(--paper);
+    border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .sheet-photo img{width:100%;height:220px;object-fit:contain;}
+  .sheet-photo.missing{
+    height:120px;
+    border:1.5px dashed var(--warn);
+    background:var(--warn-bg);
+    color:var(--warn-ink);
+    flex-direction:column;gap:6px;
+    font-size:12.5px;font-weight:600;text-align:center;
+  }
+  .sheet-photo.missing svg{width:22px;height:22px;}
+  .sheet-photo.missing span{font-weight:400;font-size:11px;opacity:.85;}
+  .sheet-crumb{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;}
+  .sheet-title{font-size:16.5px;font-weight:600;line-height:1.35;margin-bottom:12px;}
+  .sheet-status{
+    display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;
+    padding:3px 9px;border-radius:100px;background:var(--good-bg);color:var(--good-ink);margin-bottom:14px;
+  }
+  .sheet-status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:9px 14px;font-size:13px;padding:13px 0;border-top:1px solid var(--line);}
+  .kv dt{color:var(--muted);}
+  .kv dd{margin:0;font-weight:500;}
+  .kv dd.mono{font-family:"IBM Plex Mono",monospace;}
+  .kv dd.dim{color:var(--faint);font-weight:400;font-style:italic;}
+  .sheet-note{
+    margin-top:14px;padding:10px 12px;background:var(--paper);border:1px dashed var(--border);
+    border-radius:10px;font-size:12px;color:var(--muted);line-height:1.5;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="bar">
+    <button class="back-btn" id="backBtn" aria-label="Назад">←</button>
+    <div class="title" id="screenTitle">Довідник фурнітури<small id="screenSub">завантаження…</small></div>
+  </div>
+  <div class="search">
+    <input id="searchInput" type="text" placeholder="Пошук за назвою або артикулом…" autocomplete="off">
+  </div>
+  <div class="body" id="screenBody">
+    <div class="skeleton-row"><div class="skel" style="width:44px;height:44px;"></div><div style="flex:1"><div class="skel" style="height:14px;width:70%;margin-bottom:8px;"></div><div class="skel" style="height:10px;width:40%;"></div></div></div>
+    <div class="skeleton-row"><div class="skel" style="width:44px;height:44px;"></div><div style="flex:1"><div class="skel" style="height:14px;width:55%;margin-bottom:8px;"></div><div class="skel" style="height:10px;width:35%;"></div></div></div>
+    <div class="skeleton-row"><div class="skel" style="width:44px;height:44px;"></div><div style="flex:1"><div class="skel" style="height:14px;width:65%;margin-bottom:8px;"></div><div class="skel" style="height:10px;width:30%;"></div></div></div>
+  </div>
+</div>
+
+<div class="sheet-veil" id="sheetVeil"></div>
+<div class="sheet" id="sheet"></div>
+
+<script>
+// ====== НАЛАШТУВАННЯ ======
+// Посилання на опубліковану (Publish to web -> CSV) вкладку Google Sheets.
+// Щоб оновити джерело даних пізніше — заміните тільки цей рядок.
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRU218FxxaXiCYx1Rehj4ZohMJUwbxYVpi_MKAYPKTkVsfTCzcqYhjB2b3m6iVm5UifjiwC272nFIe5/pub?gid=1084815945&single=true&output=csv";
+
+// ====== Telegram Mini App ======
+const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  try { tg.setHeaderColor(getComputedStyle(document.documentElement).getPropertyValue('--surface').trim() || '#FFFFFF'); } catch(e) {}
+  try { tg.setBackgroundColor(getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#F5F1E8'); } catch(e) {}
+}
+
+// ====== Дрібний CSV-парсер (RFC4180: підтримує коми й переноси рядків у лапках) ======
+function parseCSV(text){
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1); // зняти BOM
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i], next = text[i+1];
+    if (inQuotes){
+      if (c === '"' && next === '"'){ field += '"'; i++; }
+      else if (c === '"'){ inQuotes = false; }
+      else { field += c; }
+    } else {
+      if (c === '"'){ inQuotes = true; }
+      else if (c === ','){ row.push(field); field = ''; }
+      else if (c === '\r'){ /* skip */ }
+      else if (c === '\n'){ row.push(field); rows.push(row); row = []; field = ''; }
+      else { field += c; }
+    }
+  }
+  if (field.length || row.length){ row.push(field); rows.push(row); }
+  if (!rows.length) return [];
+  const headers = rows[0].map(h => h.trim());
+  return rows.slice(1).filter(r => r.some(v => v !== '')).map(r => {
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = (r[idx] !== undefined ? r[idx] : '').trim(); });
+    return obj;
+  });
+}
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function initials(text){
+  return text.split(/\s|\//).filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase().slice(0,2);
+}
+const CAMERA_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+
+// ====== Стан ======
+let ITEMS = [];
+let blocks = {};
+let blockNames = [];
+let currentBlock = null;
+
+const backBtn = document.getElementById('backBtn');
+const screenTitle = document.getElementById('screenTitle');
+const screenSub = document.getElementById('screenSub');
+const screenBody = document.getElementById('screenBody');
+const searchInput = document.getElementById('searchInput');
+const sheet = document.getElementById('sheet');
+const sheetVeil = document.getElementById('sheetVeil');
+
+async function loadData(){
+  try {
+    const res = await fetch(SHEET_CSV_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    ITEMS = rows
+      .filter(r => (r['Статус'] || '').trim().toLowerCase() === 'активна')
+      .map((r, i) => ({
+        ID: r['ID'] || String(i+1),
+        Блок: r['Блок'] || 'Без блоку',
+        Підкатегорія: r['Підкатегорія'] || 'Без підкатегорії',
+        Назва: r['Назва'] || '(без назви)',
+        Артикул: r['Артикул'] || '',
+        Постачальник: r['Постачальник'] || '',
+        Ціна: r['Ціна'] && !isNaN(parseFloat(r['Ціна'])) ? parseFloat(r['Ціна']) : null,
+        'Од. виміру': r['Од. виміру'] || '',
+        Статус: r['Статус'] || '',
+        Фото: r['Фото'] || '',
+        Характеристики: r['Характеристики'] || '',
+        Відповідальний: r['Відповідальний'] || '',
+        'Дата оновлення': r['Дата оновлення'] || '',
+        Коментар: r['Коментар'] || ''
+      }));
+    if (!ITEMS.length){
+      screenBody.innerHTML = `<div class="state-msg">У таблиці поки немає активних позицій.<br>Перевірте колонку "Статус" — має бути "Активна".</div>`;
+      screenSub.textContent = '0 позицій';
+      return;
+    }
+    buildIndex();
+    renderBlocksScreen();
+  } catch (err){
+    screenBody.innerHTML = `<div class="state-msg">Не вдалось завантажити довідник.<br><span class="mono" style="font-size:11px">${esc(err.message)}</span><br><button onclick="loadData()">Спробувати ще раз</button></div>`;
+    screenSub.textContent = 'помилка завантаження';
+  }
+}
+
+function buildIndex(){
+  blocks = {};
+  ITEMS.forEach(it => {
+    blocks[it["Блок"]] = blocks[it["Блок"]] || {};
+    const sub = it["Підкатегорія"] || "Без підкатегорії";
+    blocks[it["Блок"]][sub] = blocks[it["Блок"]][sub] || [];
+    blocks[it["Блок"]][sub].push(it);
+  });
+  blockNames = Object.keys(blocks).sort((a,b) => {
+    const ca = Object.values(blocks[a]).reduce((s,l)=>s+l.length,0);
+    const cb = Object.values(blocks[b]).reduce((s,l)=>s+l.length,0);
+    return cb - ca;
+  });
+}
+
+function renderBlocksScreen(){
+  screenTitle.innerHTML = `Довідник фурнітури<small>${blockNames.length} блоків · ${ITEMS.length} позицій</small>`;
+  backBtn.classList.remove('show');
+  if (tg) tg.BackButton.hide();
+  screenBody.innerHTML = blockNames.map(b => {
+    const subs = blocks[b];
+    const n = Object.values(subs).reduce((s,l)=>s+l.length,0);
+    const subCount = Object.keys(subs).length;
+    return `<div class="block-row" data-block="${esc(b)}">
+      <div class="block-tile">${esc(initials(b))}</div>
+      <div class="block-name">${esc(b)}<span class="block-sub">${subCount} підкатегорій</span></div>
+      <div class="block-count">${n}</div>
+      <div class="chev">›</div>
+    </div>`;
+  }).join("");
+  screenBody.querySelectorAll('.block-row').forEach(row => {
+    row.addEventListener('click', () => openBlock(row.dataset.block));
+  });
+}
+
+function openBlock(blockName){
+  currentBlock = blockName;
+  const subs = blocks[blockName];
+  const n = Object.values(subs).reduce((s,l)=>s+l.length,0);
+  screenTitle.innerHTML = `${esc(blockName)}<small>${n} позицій</small>`;
+  backBtn.classList.add('show');
+  if (tg) tg.BackButton.show();
+  let html = "";
+  Object.keys(subs).sort().forEach(sub => {
+    html += `<div class="group-label">${esc(sub)}</div>`;
+    subs[sub].forEach(it => html += itemRowHtml(it));
+  });
+  screenBody.innerHTML = html;
+  bindItemRows();
+}
+
+function thumbHtml(it){
+  if (it["Фото"]) {
+    return `<div class="thumb"><img class="js-thumb-img" src="${esc(it["Фото"])}" loading="lazy" alt=""></div>`;
+  }
+  return `<div class="thumb no-photo">${CAMERA_ICON}</div>`;
+}
+// Фото хостяться на сайті постачальника — якщо колись перестане віддавати
+// картинку (зняли з продажу, змінили URL), тихо ховаємо зламану іконку
+// замість "битої картинки" браузера.
+function wireThumbFallbacks(root){
+  root.querySelectorAll('.js-thumb-img').forEach(img => {
+    img.addEventListener('error', () => {
+      const thumbBox = img.closest('.thumb');
+      if (thumbBox){ thumbBox.classList.add('no-photo'); thumbBox.innerHTML = CAMERA_ICON; return; }
+      const sheetBox = img.closest('.sheet-photo');
+      if (sheetBox){
+        sheetBox.classList.add('missing');
+        sheetBox.innerHTML = `${CAMERA_ICON}<div>Фото недоступне</div><span>посилання перестало віддавати картинку — перевірте вручну</span>`;
+      }
+    }, { once: true });
+  });
+}
+
+function itemRowHtml(it){
+  const price = it["Ціна"];
+  return `<div class="item-row" data-id="${esc(it.ID)}">
+    ${thumbHtml(it)}
+    <div class="item-main">
+      <div class="item-name">${esc(it["Назва"])}</div>
+      <div class="item-meta">
+        <span class="art mono">${esc(it["Артикул"])}</span>
+        <span class="dot"></span>
+        <span>${esc(it["Постачальник"])}</span>
+        <span class="dot"></span>
+        <span>${price !== null ? price.toFixed(2)+' грн' : 'ціна не вказана'}</span>
+      </div>
+    </div>
+    <div class="chev">›</div>
+  </div>`;
+}
+
+function bindItemRows(){
+  screenBody.querySelectorAll('.item-row').forEach(row => {
+    row.addEventListener('click', () => openItem(row.dataset.id));
+  });
+  wireThumbFallbacks(screenBody);
+}
+
+function openItem(id){
+  const it = ITEMS.find(x => String(x.ID) === String(id));
+  if (!it) return;
+  if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+  const price = it["Ціна"];
+  const photoBlock = it["Фото"]
+    ? `<div class="sheet-photo"><img class="js-thumb-img" src="${esc(it["Фото"])}" alt="" loading="lazy"></div>`
+    : `<div class="sheet-photo missing">${CAMERA_ICON}<div>Фото відсутнє</div><span>${esc(it["Постачальник"])} — додати вручну</span></div>`;
+  sheet.innerHTML = `
+    <div class="sheet-handle"></div>
+    ${photoBlock}
+    <div class="sheet-crumb">${esc(it["Блок"])} / ${esc(it["Підкатегорія"])}</div>
+    <div class="sheet-title">${esc(it["Назва"])}</div>
+    <div class="sheet-status">${esc(it["Статус"])}</div>
+    <dl class="kv">
+      <dt>Артикул</dt><dd class="mono">${esc(it["Артикул"])}</dd>
+      <dt>Постачальник</dt><dd>${esc(it["Постачальник"])}</dd>
+      <dt>Ціна</dt><dd class="${price===null?'dim':'mono'}">${price!==null ? price.toFixed(2)+' грн' : 'не вказано'}</dd>
+      <dt>Од. виміру</dt><dd>${esc(it["Од. виміру"])}</dd>
+      <dt>Характеристики</dt><dd class="${it["Характеристики"]?'':'dim'}">${it["Характеристики"] ? esc(it["Характеристики"]) : 'уточнить закупщику'}</dd>
+      <dt>Відповідальний</dt><dd class="${it["Відповідальний"]?'':'dim'}">${it["Відповідальний"] ? esc(it["Відповідальний"]) : 'не призначено'}</dd>
+      <dt>Оновлено</dt><dd class="mono">${esc(it["Дата оновлення"])}</dd>
+    </dl>
+    ${it["Коментар"] ? `<div class="sheet-note">${esc(it["Коментар"])}</div>` : ""}
+  `;
+  sheet.classList.add('open');
+  sheetVeil.classList.add('open');
+  wireThumbFallbacks(sheet);
+}
+function closeSheet(){
+  sheet.classList.remove('open');
+  sheetVeil.classList.remove('open');
+}
+sheetVeil.addEventListener('click', closeSheet);
+
+function goBack(){
+  if (searchInput.value){ searchInput.value = ""; renderSearchOrHome(); return; }
+  currentBlock = null;
+  renderBlocksScreen();
+}
+backBtn.addEventListener('click', goBack);
+if (tg) tg.BackButton.onClick(goBack);
+
+function renderSearch(query){
+  const q = query.trim().toLowerCase();
+  const results = ITEMS.filter(it =>
+    it["Назва"].toLowerCase().includes(q) || it["Артикул"].toLowerCase().includes(q)
+  );
+  backBtn.classList.add('show');
+  if (tg) tg.BackButton.show();
+  screenTitle.innerHTML = `Результати пошуку<small>${results.length} знайдено</small>`;
+  if (!results.length){
+    screenBody.innerHTML = `<div class="empty">Нічого не знайдено за запитом «${esc(query)}»</div>`;
+    return;
+  }
+  let html = "";
+  let lastGroup = null;
+  results.forEach(it => {
+    const group = it["Блок"] + " / " + it["Підкатегорія"];
+    if (group !== lastGroup){ html += `<div class="group-label">${esc(group)}</div>`; lastGroup = group; }
+    html += itemRowHtml(it);
+  });
+  screenBody.innerHTML = html;
+  bindItemRows();
+}
+
+function renderSearchOrHome(){
+  if (currentBlock) openBlock(currentBlock);
+  else renderBlocksScreen();
+}
+
+let searchDebounce;
+searchInput.addEventListener('input', (e) => {
+  clearTimeout(searchDebounce);
+  const val = e.target.value;
+  searchDebounce = setTimeout(() => {
+    if (val.trim() === "") renderSearchOrHome();
+    else renderSearch(val);
+  }, 150);
+});
+
+loadData();
+</script>
+</body>
+</html>
