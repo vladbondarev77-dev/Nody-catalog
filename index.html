@@ -391,6 +391,16 @@ const searchInput = document.getElementById('searchInput');
 const sheet = document.getElementById('sheet');
 const sheetVeil = document.getElementById('sheetVeil');
 
+function findField(r, ...candidates){
+  const keys = Object.keys(r);
+  for (const cand of candidates){
+    const target = cand.trim().toLowerCase();
+    const key = keys.find(k => k.trim().toLowerCase() === target);
+    if (key !== undefined && r[key]) return r[key];
+  }
+  return '';
+}
+
 async function loadData(){
   try {
     const res = await fetch(SHEET_CSV_URL, { cache: 'no-store' });
@@ -413,7 +423,7 @@ async function loadData(){
         Характеристики: r['Характеристики'] || '',
         'Дата оновлення': r['Дата оновлення'] || '',
         Коментар: r['Коментар'] || '',
-        'Посилання на товар': r['Посилання на товар'] || r['Відповідальний'] || ''
+        'Посилання на товар': findField(r, 'Посилання на товар', 'Відповідальний', 'Посилання', 'Посилання на сайт постачальника')
       }));
     if (!ITEMS.length){
       screenBody.innerHTML = `<div class="state-msg">У таблиці поки немає активних позицій.<br>Перевірте колонку "Статус" — має бути "Активна".</div>`;
