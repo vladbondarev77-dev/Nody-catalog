@@ -245,12 +245,38 @@
     max-height:220px;
     border-radius:14px;
     overflow:hidden;
-    margin-bottom:14px;
+    margin-bottom:6px;
     background:var(--paper);
     border:1px solid var(--border);
     display:flex;align-items:center;justify-content:center;
+    position:relative;
   }
   .sheet-photo img{width:100%;height:220px;object-fit:contain;}
+  a.sheet-photo{cursor:pointer;}
+  a.sheet-photo::after{
+    content:"⤢";
+    position:absolute;
+    top:8px;right:8px;
+    width:26px;height:26px;
+    border-radius:8px;
+    background:rgba(20,15,8,.55);
+    color:#fff;
+    font-size:14px;
+    display:flex;align-items:center;justify-content:center;
+    pointer-events:none;
+  }
+  a.sheet-photo.missing::after{display:none;}
+  .photo-link{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-size:12px;
+    font-weight:600;
+    color:var(--accent-ink);
+    text-decoration:none;
+    margin-bottom:14px;
+  }
+  .photo-link svg{width:12px;height:12px;}
   .sheet-photo.missing{
     height:120px;
     border:1.5px dashed var(--warn);
@@ -470,6 +496,7 @@ function wireThumbFallbacks(root){
       if (sheetBox){
         sheetBox.classList.add('missing');
         sheetBox.innerHTML = `${CAMERA_ICON}<div>Фото недоступне</div><span>посилання перестало віддавати картинку — перевірте вручну</span>`;
+        if (sheetBox.tagName === 'A') sheetBox.removeAttribute('href');
       }
     }, { once: true });
   });
@@ -506,7 +533,7 @@ function openItem(id){
   if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
   const price = it["Ціна"];
   const photoBlock = it["Фото"]
-    ? `<div class="sheet-photo"><img class="js-thumb-img" src="${esc(it["Фото"])}" alt="" loading="lazy"></div>`
+    ? `<a class="sheet-photo" href="${esc(it["Фото"])}" target="_blank" rel="noopener"><img class="js-thumb-img" src="${esc(it["Фото"])}" alt="" loading="lazy"></a>`
     : `<div class="sheet-photo missing">${CAMERA_ICON}<div>Фото відсутнє</div><span>${esc(it["Постачальник"])} — додати вручну</span></div>`;
   sheet.innerHTML = `
     <div class="sheet-handle"></div>
