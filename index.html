@@ -252,7 +252,8 @@
     position:relative;
   }
   .sheet-photo img{width:100%;height:220px;object-fit:contain;}
-  a.sheet-photo{cursor:pointer;}
+  a.sheet-photo{cursor:pointer;text-decoration:none;color:inherit;}
+  a.sheet-photo.missing span{color:var(--accent-ink);text-decoration:underline;}
   a.sheet-photo::after{
     content:"⤢";
     position:absolute;
@@ -410,9 +411,9 @@ async function loadData(){
         Статус: r['Статус'] || '',
         Фото: r['Фото'] || '',
         Характеристики: r['Характеристики'] || '',
-        Відповідальний: r['Відповідальний'] || '',
         'Дата оновлення': r['Дата оновлення'] || '',
-        Коментар: r['Коментар'] || ''
+        Коментар: r['Коментар'] || '',
+        'Посилання на товар': r['Посилання на товар'] || r['Відповідальний'] || ''
       }));
     if (!ITEMS.length){
       screenBody.innerHTML = `<div class="state-msg">У таблиці поки немає активних позицій.<br>Перевірте колонку "Статус" — має бути "Активна".</div>`;
@@ -532,9 +533,12 @@ function openItem(id){
   if (!it) return;
   if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
   const price = it["Ціна"];
+  const productUrl = it["Посилання на товар"] || it["Фото"];
   const photoBlock = it["Фото"]
-    ? `<a class="sheet-photo" href="${esc(it["Фото"])}" target="_blank" rel="noopener"><img class="js-thumb-img" src="${esc(it["Фото"])}" alt="" loading="lazy"></a>`
-    : `<div class="sheet-photo missing">${CAMERA_ICON}<div>Фото відсутнє</div><span>${esc(it["Постачальник"])} — додати вручну</span></div>`;
+    ? `<a class="sheet-photo" href="${esc(productUrl)}" target="_blank" rel="noopener"><img class="js-thumb-img" src="${esc(it["Фото"])}" alt="" loading="lazy"></a>`
+    : it["Посилання на товар"]
+      ? `<a class="sheet-photo missing" href="${esc(it["Посилання на товар"])}" target="_blank" rel="noopener">${CAMERA_ICON}<div>Фото відсутнє</div><span>перейти на сторінку товару →</span></a>`
+      : `<div class="sheet-photo missing">${CAMERA_ICON}<div>Фото відсутнє</div><span>${esc(it["Постачальник"])} — додати вручну</span></div>`;
   sheet.innerHTML = `
     <div class="sheet-handle"></div>
     ${photoBlock}
@@ -547,7 +551,6 @@ function openItem(id){
       <dt>Ціна</dt><dd class="${price===null?'dim':'mono'}">${price!==null ? price.toFixed(2)+' грн' : 'не вказано'}</dd>
       <dt>Од. виміру</dt><dd>${esc(it["Од. виміру"])}</dd>
       <dt>Характеристики</dt><dd class="${it["Характеристики"]?'':'dim'}">${it["Характеристики"] ? esc(it["Характеристики"]) : 'уточнить закупщику'}</dd>
-      <dt>Відповідальний</dt><dd class="${it["Відповідальний"]?'':'dim'}">${it["Відповідальний"] ? esc(it["Відповідальний"]) : 'не призначено'}</dd>
       <dt>Оновлено</dt><dd class="mono">${esc(it["Дата оновлення"])}</dd>
     </dl>
     ${it["Коментар"] ? `<div class="sheet-note">${esc(it["Коментар"])}</div>` : ""}
